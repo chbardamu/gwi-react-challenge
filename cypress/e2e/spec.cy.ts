@@ -7,6 +7,7 @@ context('My Cat App', () => {
         fixture: 'search.json'
       }).as('search');
       cy.visit('http://localhost:3000');
+      cy.wait('@search');
     });
 
     it('should show 10 images', () => {
@@ -15,7 +16,7 @@ context('My Cat App', () => {
 
     it('should load 10 more images when button is clicked', () => {
       cy.intercept('GET', '*/images/search*', {
-        fixture: 'search.json'
+        fixture: 'search-more.json'
       }).as('searchMore');
       cy.get('[data-test="show-more"]').click();
       cy.wait('@searchMore');
@@ -24,10 +25,13 @@ context('My Cat App', () => {
     });
 
     it('should open a modal with the image details when image is clicked', () => {
+      cy.intercept('GET', '*/images/agwTe5TSe', {
+        fixture: 'selected-image.json'
+      }).as('selectedImage');
       cy.get('[data-test="cat-image-modal"]').should('not.be.visible');
       cy.url().should('eq', 'http://localhost:3000/');
       cy.get('[data-test="list-item"]').eq(7).should('be.visible').click();
-
+      cy.wait('@selectedImage');
       // Modal is opened
       cy.get('[data-test="cat-image-modal"]').should('be.visible');
       // The original image is shown
@@ -48,16 +52,24 @@ context('My Cat App', () => {
     });
 
     it(`should show a tooltip with cat details`, () => {
+      cy.intercept('GET', '*/breeds', {
+        fixture: 'breeds.json'
+      }).as('breeds');
       cy.get('[data-test="tooltip"]').trigger('mouseover');
       cy.wait(100);
       cy.get('[data-test="tooltip-content"]').should('be.visible').click();
+      cy.wait('@breeds');
       cy.url().should('contains', '/breeds');
       cy.get('[data-test="title"]').should('have.text', 'breeds');
       cy.get('[data-test="table-row"]').should('have.length', 67);
     });
 
     it(`should open a modal with images when a breed is clicked`, () => {
+      cy.intercept('GET', '*/images/search/?breed_ids=*', {
+        fixture: 'breed-images.json'
+      }).as('breedImages');
       cy.get('[data-test="table-row"]').eq(1).click();
+      cy.wait('@breedImages');
       cy.get('[data-test="cat-breed-images-modal"]').should('be.visible');
       cy.get('[data-test="list-item"]').should('have.length', 5);
     });
@@ -65,7 +77,6 @@ context('My Cat App', () => {
     it(`should open a modal with the selected image`, () => {
       cy.get('[data-test="list-item"]').eq(0).click();
       cy.get('[data-test="cat-image-modal"]').should('be.visible');
-      cy.wait(1000);
       cy.get('[data-test="original-cat-image"]').should('be.visible');
     });
   });
@@ -73,6 +84,9 @@ context('My Cat App', () => {
   describe(`Open the app directly on 'breeds' page`, () => {
     before(() => {
       cy.visit('http://localhost:3000/breeds');
+      cy.intercept('GET', '*/breeds', {
+        fixture: 'breeds.json'
+      }).as('breeds');
     });
 
     it('should show a tabular list of cat breeds', () => {
@@ -112,10 +126,18 @@ context('My Cat App', () => {
   describe(`Open the app directly on an image`, () => {
     before(() => {
       cy.visit('http://localhost:3000/images/agwTe5TSe');
+      cy.intercept('GET', '*/images/search*', {
+        fixture: 'search.json'
+      }).as('search');
+      cy.intercept('GET', '*/images/agwTe5TSe', {
+        fixture: 'selected-image.json'
+      }).as('selectedImage');
+      cy.wait('@selectedImage');
     });
 
     it('should show a specific image', () => {
       cy.get('[data-test="cat-image-modal"]').should('be.visible');
+      cy.get('[data-test="original-cat-image"]').should('be.visible');
     });
 
     it('should close modal to show the home page', () => {

@@ -7,6 +7,7 @@ type Props = {
   url: string;
   width?: number;
   height?: number;
+  loading?: HTMLImageElement['loading'];
 };
 
 function Image(props: Props) {
@@ -34,6 +35,7 @@ function Image(props: Props) {
         style={{ width: 0, height: 0 }}
         src={props.url}
         alt="A cute cat!"
+        loading={props.loading}
         onLoad={() => setIsLoaded(true)}
       />
       <Styled.Image url={props.url} />

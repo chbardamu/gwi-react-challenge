@@ -37,16 +37,16 @@ const Image = styled.div<{ url: string }>`
 
 const slide = keyframes`
   from {
-    background-position: 0%;
+    background-position: 100%;
   }
   to {
-    background-position: 100%;
+    background-position: 0%;
   }
 `;
 
 const Skeleton = styled.div<{ isVisible: boolean }>`
   background: var(--gradient-skeleton-background);
-  background-size: 1400px;
+  background-size: 400%;
   animation: ${slide} 1s linear infinite alternate;
   display: ${({ isVisible }) => (isVisible ? 'block' : 'none')};
   position: absolute;
@@ -54,6 +54,7 @@ const Skeleton = styled.div<{ isVisible: boolean }>`
   right: 0;
   bottom: 0;
   left: 0;
+  will-change: background;
   z-index: 1;
 `;
 
